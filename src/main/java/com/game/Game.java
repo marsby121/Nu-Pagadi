@@ -23,6 +23,7 @@ public class Game extends Stage {
 
     private Pane appRoot = new Pane();
     private Pane gameRoot = new Pane();
+    private Wolf wolf;
     private Player player;
 
     private int lvl = 1;
@@ -62,7 +63,7 @@ public class Game extends Stage {
     private void initContent() {
         ImageView backGround = new ImageView("/background.png");
         Basket basket = new Basket();
-        Wolf wolf = new Wolf(basket);
+        wolf = new Wolf(basket);
         inputManager = new InputManager(wolf, this);
         player = new Player();
         Group group = new Group();
