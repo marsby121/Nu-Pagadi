@@ -16,6 +16,10 @@ import javafx.stage.Stage;
 
 import java.util.*;
 
+enum SimpleDirection {
+    LEFT, RIGHT, UP, DOWN
+}
+
 public class Game extends Stage {
 
     public final static int WIDTH = 960;
@@ -27,6 +31,11 @@ public class Game extends Stage {
     private Player player;
 
     private int lvl = 1;
+    private AnimationTimer timer;
+
+    private Map<KeyCode, Boolean> keys = new HashMap<>();
+    private SimpleDirection yAxisDirection;
+    private SimpleDirection xAxisDirection;
 
     private long deciseconds;
 
@@ -35,7 +44,7 @@ public class Game extends Stage {
     private DoneRollingCommand doneRollingCommand;
     private RecordManager recordManager;
     private ViewFactory factory;
-    private InputManager inputManager;
+
 
     public Game(RecordManager recordManager, ViewFactory factory) {
         this.recordManager = recordManager;
@@ -44,12 +53,15 @@ public class Game extends Stage {
         Scene scene = new Scene(appRoot);
         setTitle("Wilczek");
         setScene(scene);
-        inputManager.initKeyListeners(scene);
+        initKeyListeners(scene);
         startGameLoop();
+        //dodanie sterowania z klawiatury
+
+
     }
 
     private void startGameLoop() {
-        AnimationTimer timer = new AnimationTimer() {
+        timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 if (running) {
@@ -60,15 +72,21 @@ public class Game extends Stage {
         timer.start();
     }
 
+    private void initKeyListeners(Scene scene) {
+        scene.setOnKeyPressed(e -> keys.put(e.getCode(), true));
+        scene.setOnKeyReleased(e -> keys.put(e.getCode(), false));
+    }
+
+
     private void initContent() {
         ImageView backGround = new ImageView("/background.png");
         Basket basket = new Basket();
-        wolf = new Wolf(basket);
-        inputManager = new InputManager(wolf, this);
+        Wolf wolf = new Wolf(basket);
+        this.wolf = wolf;
         player = new Player();
         Group group = new Group();
         Score score = new Score();
-        doneRollingCommand = new DoneRollingCommand(basket, player, this, score);
+        doneRollingCommand = new DoneRollingCommand(basket, player, this,score);
 
         gameRoot.getChildren().add(wolf);
         gameRoot.getChildren().add(basket);
@@ -77,10 +95,11 @@ public class Game extends Stage {
         appRoot.getChildren().addAll(backGround, gameRoot);
     }
 
+
     private void update() {
         spawnEggs();
-        inputManager.readInput();
-        inputManager.move();
+        readInput();
+        move();
         endGame();
         levelUp();
     }
@@ -97,11 +116,45 @@ public class Game extends Stage {
         }
     }
 
+    private void readInput() {
+        if (isPressed(KeyCode.W) || isPressed(KeyCode.UP)) {
+            yAxisDirection = SimpleDirection.UP;
+        }
+        if (isPressed(KeyCode.S) || isPressed(KeyCode.DOWN)) {
+            yAxisDirection = SimpleDirection.DOWN;
+        }
+        if (isPressed(KeyCode.A) || isPressed(KeyCode.LEFT)) {
+            xAxisDirection = SimpleDirection.LEFT;
+        }
+        if (isPressed(KeyCode.D) || isPressed(KeyCode.RIGHT)) {
+            xAxisDirection = SimpleDirection.RIGHT;
+        }
+        if (isPressed(KeyCode.CONTROL) && isPressed(KeyCode.SHIFT) && isPressed(KeyCode.Q)) {
+            backToMenu();
+        }
+    }
+
     private void levelUp() {
         if (player.getScore() > lvl * 10) {
             System.out.println("Lvl up! ");
             System.out.println(lvl);
             lvl++;
+        }
+    }
+
+    private void move() {
+        if (yAxisDirection == SimpleDirection.UP) {
+            if (xAxisDirection == SimpleDirection.LEFT) {
+                wolf.setDirection(Direction.LEFT_UP);
+            } else {
+                wolf.setDirection(Direction.RIGHT_UP);
+            }
+        } else {
+            if (xAxisDirection == SimpleDirection.LEFT) {
+                wolf.setDirection(Direction.LEFT_DOWN);
+            } else {
+                wolf.setDirection(Direction.RIGHT_DOWN);
+            }
         }
     }
 
@@ -112,7 +165,7 @@ public class Game extends Stage {
         }
     }
 
-    void backToMenu() {
+    private void backToMenu() {
         running = false;
         factory.closeStage(this);
         factory.initializeStage(WindowType.MENU);
@@ -123,8 +176,9 @@ public class Game extends Stage {
         window.setTitle("Game ended!");
         window.setHeaderText("Game ended! You got: " + player.getScore() + " points!");
         window.setContentText("Enter your name:");
-        Platform.runLater(window::show);
+        Platform.runLater(() -> window.show());
         window.setOnHidden(e -> savePlayer(window));
+
     }
 
     private void savePlayer(TextInputDialog window) {
@@ -133,6 +187,13 @@ public class Game extends Stage {
         player.setName(name);
         recordManager.saveRecord(player);
     }
+
+
+
+    private boolean isPressed(KeyCode code) {
+        return keys.getOrDefault(code, false);
+    }
+
 
     public void removeObject(Node node) {
         gameRoot.getChildren().remove(node);
