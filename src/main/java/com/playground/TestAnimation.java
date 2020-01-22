@@ -1,6 +1,7 @@
-package com.game;
+package com.playground;
 
 import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
 import javafx.animation.PathTransition;
 import javafx.application.Application;
 import javafx.scene.Group;
@@ -24,12 +25,12 @@ public class TestAnimation extends Application {
 
         Rectangle rectangle = new Rectangle(50,50,50,50);
         ImageView imageView = new ImageView("/egg-left-1.png");
-       /* FadeTransition fadeTransition = new FadeTransition();
+        FadeTransition fadeTransition = new FadeTransition();
         fadeTransition.setNode(imageView);
         fadeTransition.setDuration(Duration.seconds(5));
         fadeTransition.setFromValue(1.0);
         fadeTransition.setToValue(0.1);
-        fadeTransition.play();*/
+        fadeTransition.play();
 
         PathTransition pathTransition = new PathTransition();
         pathTransition.setDuration(Duration.seconds(6));

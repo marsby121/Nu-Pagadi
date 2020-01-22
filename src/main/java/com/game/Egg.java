@@ -15,7 +15,6 @@ public class Egg extends Entity {
     private DoneRollingCommand doneCommand;
     private Direction direction;
 
-
     public Egg(Direction direction, DoneRollingCommand doneCommand) {
         this.doneCommand = doneCommand;
         this.direction = direction;
@@ -32,12 +31,30 @@ public class Egg extends Entity {
         PauseTransition delay = new PauseTransition();
         delay.setDuration(Duration.seconds(Math.random()));
 
-        FadeTransition fadeTransition = new FadeTransition();
-        fadeTransition.setNode(this);
-        fadeTransition.setDuration(Duration.seconds(0.5));
-        fadeTransition.setFromValue(0.0);
-        fadeTransition.setToValue(1);
+        FadeTransition fadeIn = getFadeTransition(.5,0,1);
+        RotateTransition rotateTransition = getRotateTransition();
+        PathTransition pathTransition = getPathTransition();
+        FadeTransition fadeOut = getFadeTransition(.2, 1, 0);
 
+        ParallelTransition parallelTransition = new ParallelTransition();
+        parallelTransition.getChildren().addAll(fadeIn,rotateTransition, pathTransition);
+
+        SequentialTransition sequentialTransition = new SequentialTransition();
+        sequentialTransition.getChildren().addAll(delay,parallelTransition, fadeOut);
+        sequentialTransition.play();
+        sequentialTransition.setOnFinished(e-> doneCommand.rollingDone(direction, this));
+    }
+
+    private FadeTransition getFadeTransition(double duration, double fromValue, double toValue) {
+        FadeTransition fade = new FadeTransition();
+        fade.setNode(this);
+        fade.setDuration(Duration.seconds(duration));
+        fade.setFromValue(fromValue);
+        fade.setToValue(toValue);
+        return fade;
+    }
+
+    private RotateTransition getRotateTransition() {
         RotateTransition rotateTransition = new RotateTransition();
         rotateTransition.setNode(this);
         rotateTransition.setDuration(Duration.seconds(2));
@@ -50,8 +67,10 @@ public class Egg extends Entity {
         }
         rotateTransition.setFromAngle(fromAngle);
         rotateTransition.setToAngle(toAngle);
+        return rotateTransition;
+    }
 
-
+    private PathTransition getPathTransition() {
         PathTransition pathTransition = new PathTransition();
         pathTransition.setDuration(Duration.seconds(2));
         pathTransition.setNode(this);
@@ -59,23 +78,7 @@ public class Egg extends Entity {
         path.getElements().add(new MoveTo(eggLine.getStartX(), eggLine.getStartY()));
         path.getElements().add(new LineTo(eggLine.getEndX(), eggLine.getEndY()));
         pathTransition.setPath(path);
-
-
-        FadeTransition fadeTransition2 = new FadeTransition();
-        fadeTransition2.setNode(this);
-        fadeTransition2.setDuration(Duration.seconds(0.2));
-        fadeTransition2.setFromValue(1);
-        fadeTransition2.setToValue(0);
-
-        ParallelTransition parallelTransition = new ParallelTransition();
-        parallelTransition.getChildren().addAll(fadeTransition,rotateTransition, pathTransition);
-
-        SequentialTransition sequentialTransition = new SequentialTransition();
-        sequentialTransition.getChildren().addAll(delay,parallelTransition, fadeTransition2);
-        sequentialTransition.play();
-        sequentialTransition.setOnFinished(e-> doneCommand.rollingDone(direction, this));
-
-
+        return pathTransition;
     }
 
 }

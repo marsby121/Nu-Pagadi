@@ -11,18 +11,15 @@ import java.util.List;
 
 public class ViewFactory {
 
-    private List<Stage> activeStages;
     private RecordManager recordManager;
 
     public ViewFactory() {
-        activeStages = new ArrayList<>();
         recordManager = new RecordManager();
     }
 
 
     public void initializeStage(WindowType menu) {
         Stage stage = buildStage(menu);
-        activeStages.add(stage);
         stage.show();
     }
 
@@ -42,11 +39,6 @@ public class ViewFactory {
 
     public void closeStage(Stage stageToClose) {
         stageToClose.close();
-        activeStages.remove(stageToClose);
     }
-
-
-
-
 
 }
