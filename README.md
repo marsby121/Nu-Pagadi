@@ -16,5 +16,6 @@ Java JDK 13, JavaFX 13, Maven, IntelliJ java IO Serialization
 Application aviable only in developer state. It should be started on JDK 13 after resolving Maven dependecies and building project in IntelliJ. If don't start try setting JDK 13 in IntelliJ project structure options.
 
 ## Screenshots
-![tekst alternatywny](/menuNP.png)
 ![tekst alternatywny](/gameplayNP.png)
+![tekst alternatywny](/menuNP.png)
+
